@@ -1,0 +1,49 @@
+#include <unistd.h>
+#include <stdio.h>
+#include <pwd.h>
+#include <grp.h>
+#include <uuid/uuid.h>
+#include <fcntl.h>
+#include <string.h>
+#include <errno.h>
+
+
+int main(int argc, const char * argv[]) {
+    int fd;
+    int buf[200];
+    if(argc != 1){
+        int i;
+        char str[500];
+        for(i = 1; i <argc; i++){
+
+            FILE *fp;
+            if ((fp=fopen(argv[i], "r") )==NULL) {
+                perror("cheburek");
+            }
+            while(!feof (fp)){
+                if (fgets(str, 126, fp))
+                    printf("%s", str);
+            }
+            fclose(fp);
+            if(i != argc - 1){
+                printf("\n");}
+            
+            }
+        return 0;
+    }
+    else{
+        while(1){
+
+            write(1, buf, read(0,buf,200));
+        }
+        return 0;
+    }
+    
+}
+ 
+ 
+
+
+
+
+
