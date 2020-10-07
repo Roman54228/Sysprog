@@ -5,9 +5,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <sys\types.h>
-#include <sys\stat.h>
-#include <io.h>
+
 
 void Cat(const int fd) {
     char str[4096];
