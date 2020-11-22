@@ -27,6 +27,6 @@ int main(int argc, char *argv[]) {
     if (clock_gettime(_CLOCK_REALTIME, &mt2) < 0)
          perror("time");
 
-    printf("%ld,%03ld sec", mt2.tv_sec - mt1.tv_sec, (mt2.tv_nsec - mt1.tv_nsec)/1000000 );
+    printf("%ld,%ld sec", mt2.tv_sec - mt1.tv_sec, (mt2.tv_nsec - mt1.tv_nsec)/1000000 );
     return 0;
 }
