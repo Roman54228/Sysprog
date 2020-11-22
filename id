@@ -4,7 +4,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <uuid/uuid.h>
-
+#include <stdio.h>
 
 
 int main(int ac, char *av[]){
@@ -12,7 +12,6 @@ int main(int ac, char *av[]){
     struct passwd *s;
     int list[256];
     int lol = 256;
-    int groups = getgroups(256,list);
     if(ac > 1){
         
         s = getpwnam(av[1]);
