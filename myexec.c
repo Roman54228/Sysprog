@@ -15,7 +15,7 @@ int main(int argc, char* argv[]){
     int isword = 1;
     
     if(pid == 0){
-        dup2(1,pf[0]);
+        dup2(pf[1],1);
         close(pf[0]);
         close(pf[1]);
         execvp(argv[1], argv + 1);
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]){
         close(pf[1]);
         int x;
         while((x = read(pf[0], buf, 1))>0){
-            write(pf[1], buf, 1);
+            write(1, buf, 1);
             bytes += 1;
             if(buf[0] == '\n'){
                 str += 1;
