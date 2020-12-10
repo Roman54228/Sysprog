@@ -21,61 +21,52 @@ union semun {
                                            (Linux-specific) */
 };
 
-
-int wait(int id, int semnum) {
-    struct sembuf sops = {semnum, 0, 0};
-    return semop(id, &sops, 1);
-}
-int enter(int id, int semnum) {
-    struct sembuf sops = {semnum, -1, 0};
-    return semop(id, &sops, 1);
-
-}
-
-int exit(int id, int semnum) {
-    struct sembuf sops = {semnum, 1, 0};
-    return semop(id, &sops, 1);
-
-}
-
-
-int main(int argc, char const *argv[]) {
-    key_t key1 = ftok(".", 1);
-    key_t key2 = ftok("..", 2);
+int main(int argc, char *argv[])
+{
     int semid, shmid;
-    setbuf(stdout, NULL);
-    if ((semid = semget(key1, 2, IPC_CREAT | IPC_EXCL | 0666)) < 0) {
-        perror("semget");
-        exit(1);
-    }
-    if ((shmid = shmget(key2, 10000, IPC_CREAT | IPC_EXCL | 0666)) < 0) {
-        perror("shmget");
-        exit(1);
-    }
+    union semun arg1;
+    struct sembuf sop;
+    char *addr;
 
-    union semun arg1, arg2;
-    arg1.val = 1;
-    arg2.val = 1;
-    if (semctl(semid, 0, SETVAL, arg1) == -1) {
-        perror("semctl");
-        exit(1);
-    }
-    if (semctl(semid, 0, SETVAL, arg2) == -1) {
-        perror("semctl");
-        exit(1);
-    }
     
-    char *addr, *s;
-    addr = (char*) shmat(shmid, NULL, 0);
-    while (1) {
-        wait(semid, 0);
-        if (addr == (char*) -1) {
-            perror("addr");
-            exit(1);
-        }
-        printf("%s", addr);
-        enter(semid, 1);
-	exit(semid, 0);
-    }
+
+    shmid = shmget(IPC_PRIVATE, 10000, IPC_CREAT | 0600);
+    if (shmid == -1)
+        perror("shmid");
+
+    semid = semget(IPC_PRIVATE, 1, IPC_CREAT | 0600);
+    if (shmid == -1)
+        perror("semid");
+
+    
+
+    addr = shmat(shmid, NULL, SHM_RDONLY);
+    if (addr == (void *) -1)
+        perror("shmat");
+
+    
+
+    arg1.val = 1;
+    if (semctl(semid, 0, SETVAL, arg) == -1)
+        perror("semctl");
+
+    
+
+    sop.sem_num = 0;
+    sop.sem_op = 0;
+    sop.sem_flg = 0;
+
+    if (semop(semid, &sop, 1) == -1)
+        perror("semop");
+
+   
+
+    printf("%s\n", addr);
+    
+   /* if (shmctl(shmid, IPC_RMID, NULL) == -1)
+        perror("shmctl");*/
+    
+
     return 0;
 }
+
