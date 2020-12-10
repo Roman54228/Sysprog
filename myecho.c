@@ -11,8 +11,8 @@ int main(int ac, char *av[]) {
     int f = 0;
     if(strcmp(av[1],"-n") == 0){
         f = 2;
-        int i;
         
+        int i;
         for(int i = f;i < ac; i++){
         if(i < ac - 1){
             printf("%s ", av[i]);
