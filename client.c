@@ -13,86 +13,53 @@
 #include <sys/sem.h>
 #include <sys/shm.h>
 
-//передавать по строчно данные от клиента к серверу. Сервер выводит их на экран. Сервер не знает количествот клиентов
 
-int enter(int id, int semnum) {
-    struct sembuf sops = {semnum, -1, 0};
-    return semop(id, &sops, 1);
-}
-
-int exit(int id, int semnum) {
-    struct sembuf sops = {semnum, 1, 0};
-    return semop(id, &sops, 1);
-}
-
-int wait(int id, int semnum) {
-    struct sembuf sops = {semnum, 0, 0};
-    return semop(id, &sops, 1);
-}
-
-void client_c(const int fd, int shmid, int semid)
-{
-    FILE *stream = fdopen(fd, "r");
-    char str[60], *addr, *s;
-    addr = (char *)shmat(shmid, NULL, 0);
-    if (addr == (char*) -1) {
-            perror("semctl");
-            exit(1);
-        }
+void read(int fd, int shmid, int semid){
+    FILE *file = fdopen(fd, "r");
+    char *addr;
+    
+    
+    addr = shmat(shmid, NULL, 0);
+    if (addr == (void *) -1)
+    perror("shmat");
+    
     
     while(!feof(stream)) {
-    	if (fgets(addr, 60, stream)) {
-        	enter(semid, 0);
-        	wait(semid, 1);
-	        //exit(semid, 0);
-		exit(semid, 1);
-    	}
-    }
-    fclose(stream);
-    if (shmdt(addr) < 0) {
-         perror("shmdt");
-         exit(1);
-    }
+          if (fgets(addr, 60, file)) {
+              enter(semid, 0);
+              wait(semid, 1);
+              exit(semid, 1);
+          }
+      }
+      fclose(file);
 }
 
-int main(int argc, char const *argv[])
+
+int main(int argc, char *argv[])
 {
-    key_t key1 = ftok(".", 1);
-    key_t key2 = ftok("..", 2);
     int semid, shmid;
-    if ((semid = semget(key1, 2, 0666)) < 0)
+    struct sembuf sop;
+    if ((fd = open(argv[3], O_RDWR | O_EXCL)) < 0)
     {
-        perror("semget");
-        exit(1);
-    }
-    if ((shmid = shmget(key2, 0, 0666)) < 0)
-    {
-        perror("shmget");
+        perror("open failed");
         exit(1);
     }
 
+
+    shmid = atoi(argv[1]);
+    semid = atoi(argv[2]);
     
-    if (argc == 1)
-    {
-        client_c(0, shmid, semid);
-        // return 0;
-    }
-    else
-    {
-        for (int i = 1; i < argc; i++)
-        {
-            int fd;
-            if ((fd = open(argv[i], O_RDWR | O_EXCL)) < 0)
-            {
-                perror("open failed");
-                exit(1);
-            }
-            client_c(fd, shmid, semid);
-            close(fd);
-        }
-    }
+    read(fd, shmid, semid);
+    close(fd);
+    
 
-    //semctl(semid, IPC_RMID, 0);
-    //shmctl(shmid, IPC_RMID, 0);
-    return 0;
+    /* возврат семафора к 0 */
+
+    sop.sem_num = 0;
+    sop.sem_op = -1;
+    sop.sem_flg = 0;
+
+    if (semop(semid, &sop, 1) == -1)
+        perror("semop");
 }
+
