@@ -13,7 +13,7 @@
 #include <sys/sem.h>
 
 
-int main()
+int main(int argc, char* argv[])
 {
     int pf[2];
     int p = pipe(pf);
@@ -28,6 +28,7 @@ int main()
         close(pf[1]);
         while((x = read(1, buf, 1))>0){
             byte += 1;
+            write(1, buf, 1);
             
         }
     }
