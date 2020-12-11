@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
             exit(1);
         }
         if(out > 0){
-            printf("%d", out);
+            printf("%d\n", out);
         }
         }
     }
@@ -51,6 +51,9 @@ int main(int argc, char* argv[])
              err++;
              if(write(1, buf2, 1)<0){
                  perror("write_err");
+             }
+             if(err > 0){
+                 printf("%d\n", err);
              }
              close(pf2[0]);
              exit(1)
