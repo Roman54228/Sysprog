@@ -12,18 +12,20 @@
 #include <unistd.h>
 #include <sys/sem.h>
 
-void hello()
-{
-    printf("\nhello!\n");
-}
 
 int main()
 {
+    int pf[2];
+    int p = pipe(pf);
+    pid_t pid = fork();
     int byte = 0;
     char buf[256];
-    pid_t pid;
+    
     int x;
     if(pid == 0){
+        dup2(pf[1],1);
+        close(pf[0]);
+        close(pf[1]);
         while((x = read(1, buf, 1))>0){
             byte += 1;
             
