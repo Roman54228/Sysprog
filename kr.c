@@ -15,22 +15,42 @@
 
 int main(int argc, char* argv[])
 {
-    int pf[2];
-    int p = pipe(pf);
+    int pf1[2];
+    int pf2[2];
+    int p1 = pipe(pf1);
+    int p2 = pipe(pf2);
     pid_t pid = fork();
     int byte = 0;
-    char buf[256];
-    
-    int x;
+    char buf1[2];
+    char buf2[2];
+    int out = 0;
+    int err = 0;
+  
     if(pid == 0){
-        dup2(pf[1],1);
-        close(pf[0]);
-        close(pf[1]);
-        while((x = read(1, buf, 1))>0){
-            byte += 1;
-            write(1, buf, 1);
-            
+        close(pf1[1]);
+        while (read(pf[0], buf1, 1) == 1) {
+            out++;
+            if(write(1, buf1, 1)<0){
+                perror("write_out");
+            }
+            close(pf1[0]);
+            exit(1);
+        }
+        if(out > 0){
+            printf("%d", out);
+        }
         }
     }
+     if(pid == 0){
+         close(pf2[1]);
+         while(read(pf2[0], buf2, 1) == 1){
+             err++;
+             if(write(1, buf2, 1)<0){
+                 perror("write_err");
+             }
+             close(pf2[0]);
+             exit(1)
+         }
+     }
     printf("%d", byte);
 }
