@@ -17,8 +17,12 @@ int main(int argc, char* argv[])
 {
     int pf1[2];
     int pf2[2];
-    int p1 = pipe(pf1);
-    int p2 = pipe(pf2);
+     if(pipe(pf1)<0){
+        perror("pipe1");
+    }
+    if(pipe(pf2)<0){
+        perror("pipe2");
+    }
     pid_t pid = fork();
     int byte = 0;
     char buf1[2];
